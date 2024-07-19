@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone 스타일 랜덤 색상 생성기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .color-swatch {
+            width: 200px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+
+        .color-sample {
+            height: 200px;
+        }
+
+        .color-info {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .pantone-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: black;
+        }
+
+        .color-name {
+            font-size: 0.9em;
+            color: black;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .saved-colors {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .saved-color {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .saved-color:hover {
+            transform: scale(1.1);
+        }
+
+        .saved-color div {
+            margin: 0 5px;
+        }
+
+        .remove-button {
+            background-color: transparent;
+            color: red;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="colorSwatch" class="color-swatch" onclick="saveColor()">
+        <div id="colorSample" class="color-sample"></div>
+        <div class="color-info">
+            <div class="pantone-name">PANTONE<sup>®</sup></div>
+            <div id="colorCode" class="color-name"></div>
+            <div id="colorName" class="color-name"></div>
+        </div>
+    </div>
+    <button onclick="generateRandomColor()">랜덤 색상 생성</button>
+    <button onclick="clearSavedColors()">초기화</button>
+    <div class="saved-colors" id="savedColors"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            generateRandomColor();
+        });
+
+        function generateRandomColor() {
+            const randomColor = Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            const colorCode = "#" + randomColor;
+            
+            document.getElementById('colorSample').style.backgroundColor = colorCode;
+            document.getElementById('colorCode').textContent = colorCode.toUpperCase();
+            
+            const colorName = getDetailedColorName(colorCode);
+            document.getElementById('colorName').textContent = colorName;
+
+            const colorInfo = document.querySelector('.color-info');
+            colorInfo.style.color = getContrastColor(colorCode);
+        }
+
+        function getContrastColor(hexColor) {
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            return luminance > 0.5 ? "#000000" : "#FFFFFF";
+        }
+
+        function getDetailedColorName(hexColor) {
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            
+            const hsl = rgbToHsl(r, g, b);
+            const hue = hsl[0], saturation = hsl[1], lightness = hsl[2];
+
+            let baseColor = getBaseColor(hue);
+            let intensity = getIntensity(saturation, lightness);
+            let shade = getShade(lightness);
+
+            return `${intensity} ${shade} ${baseColor}`;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255, g /= 255, b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h, s, l];
+        }
+
+        function getBaseColor(hue) {
+            const hueRanges = [
+                { name: "Red", range: [0, 0.033] },
+                { name: "Orange", range: [0.033, 0.108] },
+                { name: "Yellow", range: [0.108, 0.203] },
+                { name: "Lime", range: [0.203, 0.258] },
+                { name: "Green", range: [0.258, 0.408] },
+                { name: "Teal", range: [0.408, 0.481] },
+                { name: "Cyan", range: [0.481, 0.533] },
+                { name: "Blue", range: [0.533, 0.661] },
+                { name: "Indigo", range: [0.661, 0.728] },
+                { name: "Purple", range: [0.728, 0.808] },
+                { name: "Magenta", range: [0.808, 0.911] },
+                { name: "Pink", range: [0.911, 1] }
+            ];
+
+            for (let color of hueRanges) {
+                if (hue >= color.range[0] && hue < color.range[1]) {
+                    return color.name;
+                }
+            }
+            return "Red"; // fallback
+        }
+
+        function getIntensity(saturation, lightness) {
+            if (saturation < 0.1) return "Grayish";
+            if (saturation < 0.3) return "Muted";
+            if (saturation > 0.8) return "Vibrant";
+            return "Moderate";
+        }
+
+        function getShade(lightness) {
+            if (lightness < 0.2) return "Very Dark";
+            if (lightness < 0.4) return "Dark";
+            if (lightness > 0.8) return "Very Light";
+            if (lightness > 0.6) return "Light";
+            return "Medium";
+        }
+
+        function saveColor() {
+            const colorCode = document.getElementById('colorCode').textContent;
+            const colorName = document.getElementById('colorName').textContent;
+
+            if (!colorCode || !colorName) {
+                alert("색상을 생성한 후 저장하세요.");
+                return;
+            }
+
+            const savedColors = document.getElementById('savedColors');
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'saved-color';
+
+            const sampleDiv = document.createElement('div');
+            sampleDiv.style.backgroundColor = colorCode;
+            sampleDiv.style.width = '20px';
+            sampleDiv.style.height = '20px';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.textContent = `${colorCode} - ${colorName}`;
+            infoDiv.onclick = function () {
+                const tempInput = document.createElement('input');
+                tempInput.value = colorCode;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                alert('색상 코드가 클립보드에 복사되었습니다.');
+            };
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = "x";
+            removeButton.className = 'remove-button';
+            removeButton.onclick = function () {
+                savedColors.removeChild(colorDiv);
+            };
+
+            colorDiv.appendChild(sampleDiv);
+            colorDiv.appendChild(infoDiv);
+            colorDiv.appendChild(removeButton);
+
+            savedColors.appendChild(colorDiv);
+        }
+
+        function clearSavedColors() {
+            const savedColors = document.getElementById('savedColors');
+            while (savedColors.firstChild) {
+                savedColors.removeChild(savedColors.firstChild);
+            }
+        }
+    </script>
+</body>
+
+</html>
