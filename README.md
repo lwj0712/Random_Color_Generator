@@ -12,13 +12,13 @@
 
 <br>
 
-![main](https://github.com/user-attachments/assets/3c2b08f7-e6ac-4f78-8331-8ad523132c85)
+![main](https://github.com/user-attachments/assets/e2a5c457-79ff-42fc-b2c2-bc0dca0fa214)
 
 <br>
 
 ---
 
-![features](https://github.com/user-attachments/assets/a60f5d35-fc4b-4b5a-82d5-9365455ed416)
+![features](https://github.com/user-attachments/assets/fc7250a8-bba7-406c-8850-f422908ebd57)
 
 <br>
 
