@@ -2,7 +2,6 @@
 * 랜덤한 색상을 생성해주는 프로그램 입니다.
 * 생성된 색상을 보관, 제거, 초기화 하는 기능이 있습니다.
 * 생성된 색상의 헥스코드를 제공합니다.
-* 반응형 버튼을 사용했습니다.
 
 [URL](https://lwj0712.github.io/Random_Color_Generator/)
 
@@ -22,10 +21,4 @@
 
 <br>
 
----
 
-![copy](https://github.com/user-attachments/assets/17b51c3b-2aec-4fe1-b4c7-3045bc067e57)
-
-<br>
-
----
